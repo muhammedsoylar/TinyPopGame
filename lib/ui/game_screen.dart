@@ -18,10 +18,7 @@ class GameScreen extends StatefulWidget {
 }
 
 class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
-  static const _shakeDuration = Duration(milliseconds: 240);
-  static const _moveTiltDuration = Duration(milliseconds: 480);
-  static const _shakeMaxOffset = 3.5;
-  static const _maxMoveTilt = 0.14;
+  static const _maxMoveTilt = 0.12;
 
   late final GameController _controller = GameController();
   late final AnimationController _shakeController;
@@ -32,10 +29,13 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
-    _shakeController = AnimationController(vsync: this, duration: _shakeDuration);
+    _shakeController = AnimationController(
+      vsync: this,
+      duration: GameConstants.shakeDuration,
+    );
     _moveTiltController = AnimationController(
       vsync: this,
-      duration: _moveTiltDuration,
+      duration: GameConstants.boxMoveTiltDuration,
     );
     _controller.start();
   }
@@ -53,7 +53,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
       return 0;
     }
 
-    final tilt = atan2(dy, dx) * 0.18;
+    final tilt = atan2(dy, dx) * 0.16;
     return tilt.clamp(-_maxMoveTilt, _maxMoveTilt);
   }
 
@@ -82,10 +82,11 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
   }
 
   Offset _shakeOffset(double value) {
-    final decay = pow(1 - value, 1.4).toDouble();
+    final decay = pow(1 - value, 1.5).toDouble();
+    const max = GameConstants.shakeMaxOffset;
     return Offset(
-      sin(value * pi * 8) * _shakeMaxOffset * decay,
-      cos(value * pi * 7) * (_shakeMaxOffset - 0.8) * decay,
+      sin(value * pi * 9) * max * decay,
+      cos(value * pi * 8) * (max - 0.6) * decay,
     );
   }
 

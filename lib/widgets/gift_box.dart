@@ -24,11 +24,6 @@ class GiftBox extends StatefulWidget {
 }
 
 class _GiftBoxState extends State<GiftBox> with TickerProviderStateMixin {
-  static const _idleDuration = Duration(milliseconds: 2000);
-  static const _tapDuration = Duration(milliseconds: 260);
-  static const _floatAmplitude = 6.0;
-  static const _idleTiltAmplitude = 0.045;
-
   late final AnimationController _idleController;
   late final AnimationController _tapController;
   late final Animation<double> _tapScaleX;
@@ -37,35 +32,41 @@ class _GiftBoxState extends State<GiftBox> with TickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
-    _idleController = AnimationController(vsync: this, duration: _idleDuration);
-    _tapController = AnimationController(vsync: this, duration: _tapDuration);
+    _idleController = AnimationController(
+      vsync: this,
+      duration: GameConstants.giftIdleDuration,
+    );
+    _tapController = AnimationController(
+      vsync: this,
+      duration: GameConstants.giftTapDuration,
+    );
 
     _tapScaleX = TweenSequence<double>([
       TweenSequenceItem(
-        tween: Tween(begin: 1.0, end: 1.16).chain(CurveTween(curve: Curves.easeIn)),
-        weight: 28,
+        tween: Tween(begin: 1.0, end: 1.18).chain(CurveTween(curve: Curves.easeIn)),
+        weight: 26,
       ),
       TweenSequenceItem(
-        tween: Tween(begin: 1.16, end: 0.93).chain(CurveTween(curve: Curves.easeOut)),
-        weight: 32,
+        tween: Tween(begin: 1.18, end: 0.9).chain(CurveTween(curve: Curves.easeOut)),
+        weight: 34,
       ),
       TweenSequenceItem(
-        tween: Tween(begin: 0.93, end: 1.0).chain(CurveTween(curve: Curves.elasticOut)),
+        tween: Tween(begin: 0.9, end: 1.0).chain(CurveTween(curve: Curves.elasticOut)),
         weight: 40,
       ),
     ]).animate(_tapController);
 
     _tapScaleY = TweenSequence<double>([
       TweenSequenceItem(
-        tween: Tween(begin: 1.0, end: 0.74).chain(CurveTween(curve: Curves.easeIn)),
-        weight: 28,
+        tween: Tween(begin: 1.0, end: 0.72).chain(CurveTween(curve: Curves.easeIn)),
+        weight: 26,
       ),
       TweenSequenceItem(
-        tween: Tween(begin: 0.74, end: 1.1).chain(CurveTween(curve: Curves.easeOut)),
-        weight: 32,
+        tween: Tween(begin: 0.72, end: 1.12).chain(CurveTween(curve: Curves.easeOut)),
+        weight: 34,
       ),
       TweenSequenceItem(
-        tween: Tween(begin: 1.1, end: 1.0).chain(CurveTween(curve: Curves.elasticOut)),
+        tween: Tween(begin: 1.12, end: 1.0).chain(CurveTween(curve: Curves.elasticOut)),
         weight: 40,
       ),
     ]).animate(_tapController);
@@ -109,58 +110,79 @@ class _GiftBoxState extends State<GiftBox> with TickerProviderStateMixin {
         final idlePhase = _idleController.value * 2 * pi;
         final isIdle = widget.isActive;
 
-        final floatY = isIdle ? sin(idlePhase) * _floatAmplitude : 0.0;
-        final idleTilt = isIdle ? sin(idlePhase * 0.85) * _idleTiltAmplitude : 0.0;
-        final idleScale = isIdle ? 1.0 + sin(idlePhase) * 0.025 : 1.0;
+        final floatWave = isIdle ? sin(idlePhase) : 0.0;
+        final floatY = floatWave * GameConstants.giftFloatAmplitude;
+        final idleTilt =
+            isIdle ? sin(idlePhase * 0.82) * GameConstants.giftIdleTiltAmplitude : 0.0;
+        final idleScale =
+            isIdle ? 1.0 + floatWave * GameConstants.giftIdleBreatheScale : 1.0;
 
-        final shadowPulse = isIdle ? 0.6 + 0.4 * sin(idlePhase) : 1.0;
-        final blurRadius = 6 + 10 * shadowPulse;
-        final shadowOffsetY = 2 + 6 * shadowPulse;
-        final shadowScale = 0.85 + 0.15 * shadowPulse;
+        final shadowPulse = isIdle ? 0.55 + 0.45 * sin(idlePhase + pi) : 1.0;
+        final groundShadowWidth = widget.size * (0.62 + 0.14 * shadowPulse);
+        final groundShadowOpacity = isIdle ? 0.1 + 0.12 * shadowPulse : 0.16;
 
         final scaleX = _tapScaleX.value * idleScale;
         final scaleY = _tapScaleY.value * idleScale;
 
-        return Transform.translate(
-          offset: Offset(0, floatY),
-          child: Transform.rotate(
-            angle: idleTilt,
-            child: Transform(
-              alignment: Alignment.center,
-              transform: Matrix4.diagonal3Values(scaleX, scaleY, 1),
-              child: GestureDetector(
-                key: GiftBox.tapKey,
-                behavior: HitTestBehavior.opaque,
-                onTap: _handleTap,
-                child: AnimatedContainer(
-                  duration: GameConstants.popAnimationDuration,
-                  curve: GameConstants.boxMoveCurve,
-                  width: widget.size,
-                  height: widget.size,
-                  decoration: BoxDecoration(
-                    color: widget.color,
-                    borderRadius: BorderRadius.circular(24),
-                    boxShadow: [
-                      BoxShadow(
-                        blurRadius: blurRadius,
-                        spreadRadius: 1 * shadowPulse,
-                        offset: Offset(0, shadowOffsetY),
-                        color: Colors.black.withOpacity(
-                          (0.12 + 0.14 * shadowPulse) * shadowScale,
+        return Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Transform.translate(
+              offset: Offset(0, floatY),
+              child: Transform.rotate(
+                angle: idleTilt,
+                child: Transform(
+                  alignment: Alignment.center,
+                  transform: Matrix4.diagonal3Values(scaleX, scaleY, 1),
+                  child: GestureDetector(
+                    key: GiftBox.tapKey,
+                    behavior: HitTestBehavior.opaque,
+                    onTap: _handleTap,
+                    child: AnimatedContainer(
+                      duration: GameConstants.popAnimationDuration,
+                      curve: GameConstants.boxMoveCurve,
+                      width: widget.size,
+                      height: widget.size,
+                      decoration: BoxDecoration(
+                        color: widget.color,
+                        borderRadius: BorderRadius.circular(24),
+                        boxShadow: [
+                          BoxShadow(
+                            blurRadius: 8 + 6 * shadowPulse,
+                            spreadRadius: 0.5,
+                            offset: const Offset(0, 4),
+                            color: widget.color.withOpacity(0.35),
+                          ),
+                        ],
+                      ),
+                      child: const Center(
+                        child: Text(
+                          '🎁',
+                          style: TextStyle(fontSize: 52),
                         ),
                       ),
-                    ],
-                  ),
-                  child: const Center(
-                    child: Text(
-                      '🎁',
-                      style: TextStyle(fontSize: 52),
                     ),
                   ),
                 ),
               ),
             ),
-          ),
+            const SizedBox(height: 6),
+            AnimatedContainer(
+              duration: const Duration(milliseconds: 120),
+              width: groundShadowWidth,
+              height: widget.size * 0.1,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(999),
+                boxShadow: [
+                  BoxShadow(
+                    blurRadius: 6 + 8 * shadowPulse,
+                    spreadRadius: 1,
+                    color: Colors.black.withOpacity(groundShadowOpacity),
+                  ),
+                ],
+              ),
+            ),
+          ],
         );
       },
     );
