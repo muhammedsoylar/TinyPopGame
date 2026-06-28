@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:tiny_pop/services/asset_sound_player.dart';
 import 'package:tiny_pop/services/game_audio.dart';
+import 'package:tiny_pop/services/high_score_service.dart';
 import 'package:tiny_pop/ui/main_menu_screen.dart';
 
 class TinyPopApp extends StatefulWidget {
@@ -13,6 +14,13 @@ class TinyPopApp extends StatefulWidget {
 class _TinyPopAppState extends State<TinyPopApp> {
   late final AssetSoundPlayer _soundPlayer = AssetSoundPlayer();
   late final GameAudio _gameAudio = GameAudio(player: _soundPlayer);
+  late final HighScoreService _highScoreService = HighScoreService();
+
+  @override
+  void initState() {
+    super.initState();
+    _highScoreService.load();
+  }
 
   @override
   void dispose() {
@@ -22,11 +30,14 @@ class _TinyPopAppState extends State<TinyPopApp> {
 
   @override
   Widget build(BuildContext context) {
-    return GameAudioScope(
-      notifier: _gameAudio,
-      child: const MaterialApp(
-        debugShowCheckedModeBanner: false,
-        home: MainMenuScreen(),
+    return HighScoreScope(
+      notifier: _highScoreService,
+      child: GameAudioScope(
+        notifier: _gameAudio,
+        child: const MaterialApp(
+          debugShowCheckedModeBanner: false,
+          home: MainMenuScreen(),
+        ),
       ),
     );
   }

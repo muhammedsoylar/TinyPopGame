@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:tiny_pop/services/game_audio.dart';
+import 'package:tiny_pop/services/high_score_service.dart';
 import 'package:tiny_pop/core/app_colors.dart';
 import 'package:tiny_pop/core/app_spacing.dart';
 import 'package:tiny_pop/core/game_constants.dart';
@@ -22,10 +23,13 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
   static const _maxMoveTilt = 0.1;
 
   late final GameController _controller = GameController();
+  late final HighScoreService _highScoreService;
   late final AnimationController _shakeController;
   late final AnimationController _moveTiltController;
 
   double _moveTiltStart = 0;
+  bool _wasActive = true;
+  bool _highScoreReady = false;
 
   @override
   void initState() {
@@ -42,11 +46,41 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
   }
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_highScoreReady) {
+      return;
+    }
+
+    _highScoreService = HighScoreScope.of(context);
+    _controller.addListener(_handleControllerChange);
+    _highScoreReady = true;
+  }
+
+  @override
   void dispose() {
+    if (_highScoreReady) {
+      _controller.removeListener(_handleControllerChange);
+    }
     _shakeController.dispose();
     _moveTiltController.dispose();
     _controller.dispose();
     super.dispose();
+  }
+
+  void _handleControllerChange() {
+    final isActive = _controller.state.isActive;
+    if (_wasActive && !isActive) {
+      _highScoreService.recordGameScore(_controller.state.score);
+    } else if (!_wasActive && isActive) {
+      _highScoreService.resetSession();
+    }
+    _wasActive = isActive;
+  }
+
+  void _handlePlayAgain() {
+    _highScoreService.resetSession();
+    _controller.playAgain();
   }
 
   double _tiltForMovement(double dx, double dy) {
@@ -167,9 +201,16 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
                           child: Center(
                             child: Padding(
                               padding: const EdgeInsets.all(AppSpacing.lg),
-                              child: GameOverPanel(
-                                score: state.score,
-                                onPlayAgain: _controller.playAgain,
+                              child: ListenableBuilder(
+                                listenable: _highScoreService,
+                                builder: (context, _) {
+                                  return GameOverPanel(
+                                    score: state.score,
+                                    bestScore: _highScoreService.highScore,
+                                    isNewRecord: _highScoreService.isNewRecord,
+                                    onPlayAgain: _handlePlayAgain,
+                                  );
+                                },
                               ),
                             ),
                           ),

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:tiny_pop/core/app_colors.dart';
 import 'package:tiny_pop/core/app_spacing.dart';
 import 'package:tiny_pop/core/app_typography.dart';
+import 'package:tiny_pop/services/high_score_service.dart';
 import 'package:tiny_pop/ui/game_screen.dart';
 import 'package:tiny_pop/widgets/menu_bubble.dart';
 import 'package:tiny_pop/widgets/sound_toggle_button.dart';
@@ -70,7 +71,20 @@ class MainMenuScreen extends StatelessWidget {
                         textAlign: TextAlign.center,
                         style: AppTypography.bodyLarge,
                       ),
-                      const SizedBox(height: AppSpacing.xl),
+                      const SizedBox(height: AppSpacing.sm),
+                      ListenableBuilder(
+                        listenable: HighScoreScope.of(context),
+                        builder: (context, _) {
+                          final highScore = HighScoreScope.of(context).highScore;
+                          return Text(
+                            'Best Score: $highScore',
+                            style: AppTypography.headline.copyWith(
+                              color: AppColors.hudScoreAccent,
+                            ),
+                          );
+                        },
+                      ),
+                      const SizedBox(height: AppSpacing.md),
                       SizedBox(
                         width: double.infinity,
                         child: ElevatedButton(

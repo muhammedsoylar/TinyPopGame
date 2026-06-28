@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:tiny_pop/main.dart';
 import 'package:tiny_pop/widgets/gift_box.dart';
@@ -17,11 +18,17 @@ Future<void> _pumpGameFrame(WidgetTester tester, [Duration duration = const Dura
 }
 
 void main() {
+  setUp(() {
+    SharedPreferences.setMockInitialValues({});
+  });
+
   testWidgets('Main menu shows title and Play button', (WidgetTester tester) async {
     await tester.pumpWidget(const TinyPopApp());
+    await tester.pump();
 
     expect(find.text('Tiny Pop'), findsOneWidget);
     expect(find.text('Play'), findsOneWidget);
+    expect(find.text('Best Score: 0'), findsOneWidget);
     expect(find.byIcon(Icons.volume_up_rounded), findsOneWidget);
     expect(find.text('Time: 60'), findsNothing);
     expect(find.text('🎁'), findsOneWidget);
@@ -29,6 +36,7 @@ void main() {
 
   testWidgets('Sound toggle turns sound off on main menu', (WidgetTester tester) async {
     await tester.pumpWidget(const TinyPopApp());
+    await tester.pump();
 
     await tester.tap(find.byIcon(Icons.volume_up_rounded));
     await tester.pump();
@@ -67,6 +75,7 @@ void main() {
     await _startGame(tester);
 
     await tester.pump(const Duration(seconds: 60));
+    await tester.pump();
 
     expect(find.text('Game Over'), findsOneWidget);
     expect(find.text('Play Again'), findsOneWidget);
@@ -78,8 +87,11 @@ void main() {
     await tester.tap(find.byKey(GiftBox.tapKey));
     await _pumpGameFrame(tester);
     await tester.pump(const Duration(seconds: 60));
+    await tester.pump();
 
     expect(find.text('Final Score: 1'), findsOneWidget);
+    expect(find.text('Best Score: 1'), findsOneWidget);
+    expect(find.text('New Record!'), findsOneWidget);
 
     await tester.tap(find.text('Play Again'));
     await _pumpGameFrame(tester);

@@ -6,11 +6,15 @@ import 'package:tiny_pop/core/app_typography.dart';
 class GameOverPanel extends StatefulWidget {
   const GameOverPanel({
     required this.score,
+    required this.bestScore,
+    required this.isNewRecord,
     required this.onPlayAgain,
     super.key,
   });
 
   final int score;
+  final int bestScore;
+  final bool isNewRecord;
   final VoidCallback onPlayAgain;
 
   @override
@@ -120,6 +124,23 @@ class _GameOverPanelState extends State<GameOverPanel> with TickerProviderStateM
               'Final Score: ${widget.score}',
               style: AppTypography.headline,
             ),
+            const SizedBox(height: AppSpacing.xs),
+            Text(
+              'Best Score: ${widget.bestScore}',
+              style: AppTypography.bodyLarge.copyWith(
+                fontWeight: FontWeight.w700,
+                color: AppColors.titlePurple,
+              ),
+            ),
+            if (widget.isNewRecord) ...[
+              const SizedBox(height: AppSpacing.xs),
+              Text(
+                'New Record!',
+                style: AppTypography.headline.copyWith(
+                  color: AppColors.hudScoreAccent,
+                ),
+              ),
+            ],
             const SizedBox(height: AppSpacing.md),
             SizedBox(
               width: double.infinity,
