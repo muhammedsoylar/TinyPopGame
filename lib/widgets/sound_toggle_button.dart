@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:tiny_pop/core/app_colors.dart';
+import 'package:tiny_pop/core/app_spacing.dart';
 import 'package:tiny_pop/services/game_audio.dart';
 
 class SoundToggleButton extends StatelessWidget {
@@ -17,9 +19,9 @@ class SoundToggleButton extends StatelessWidget {
           tooltip: isEnabled ? 'Sound on' : 'Sound off',
           icon: Icon(
             isEnabled ? Icons.volume_up_rounded : Icons.volume_off_rounded,
-            size: 32,
+            size: AppSpacing.lg,
           ),
-          color: const Color(0xFF4A148C),
+          color: AppColors.titlePurple,
           onPressed: audio.toggleEnabled,
         );
       },

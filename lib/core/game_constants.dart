@@ -3,23 +3,27 @@ import 'package:flutter/material.dart';
 abstract final class GameConstants {
   static const gameDurationSeconds = 60;
   static const popAnimationDuration = Duration(milliseconds: 180);
-  static const boxMoveDuration = Duration(milliseconds: 460);
-  static const boxMoveCurve = Curves.easeOutCubic;
-  static const boxMoveTiltDuration = Duration(milliseconds: 520);
-  static const burstOverlaySize = 208.0;
+  static const boxMoveDuration = Duration(milliseconds: 220);
+  static const boxMoveCurve = Curves.easeOutBack;
+  static const boxMoveTiltDuration = Duration(milliseconds: 220);
+  static const burstOverlaySize = 176.0;
 
-  // Gift box idle feel
-  static const giftIdleDuration = Duration(milliseconds: 2400);
-  static const giftFloatAmplitude = 5.0;
-  static const giftIdleTiltAmplitude = 0.038;
-  static const giftIdleBreatheScale = 0.018;
+  // Gift box idle float (6–8 px, 2.5 s easeInOut loop)
+  static const giftIdleDuration = Duration(milliseconds: 2500);
+  static const giftFloatAmplitude = 7.0;
 
   // Tap squash & stretch
-  static const giftTapDuration = Duration(milliseconds: 280);
+  static const giftTapSquashScaleX = 0.92;
+  static const giftTapStretchScaleY = 1.08;
+  static const giftTapDuration = Duration(milliseconds: 320);
 
-  // Screen shake on pop
-  static const shakeDuration = Duration(milliseconds: 260);
-  static const shakeMaxOffset = 4.0;
+  // Gentle screen shake on pop
+  static const shakeDuration = Duration(milliseconds: 80);
+  static const shakeMaxOffset = 2.5;
+
+  // Confetti burst
+  static const burstLifetime = Duration(milliseconds: 450);
+  static const burstParticleCount = 36;
 
   static const initialBoxX = 120.0;
   static const initialBoxY = 220.0;

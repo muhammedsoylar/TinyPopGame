@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:tiny_pop/services/game_audio.dart';
 import 'package:tiny_pop/core/app_colors.dart';
+import 'package:tiny_pop/core/app_spacing.dart';
 import 'package:tiny_pop/core/game_constants.dart';
 import 'package:tiny_pop/game/game_controller.dart';
 import 'package:tiny_pop/widgets/game_hud.dart';
@@ -18,7 +19,7 @@ class GameScreen extends StatefulWidget {
 }
 
 class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
-  static const _maxMoveTilt = 0.12;
+  static const _maxMoveTilt = 0.1;
 
   late final GameController _controller = GameController();
   late final AnimationController _shakeController;
@@ -53,7 +54,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
       return 0;
     }
 
-    final tilt = atan2(dy, dx) * 0.16;
+    final tilt = atan2(dy, dx) * 0.14;
     return tilt.clamp(-_maxMoveTilt, _maxMoveTilt);
   }
 
@@ -82,16 +83,16 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
   }
 
   Offset _shakeOffset(double value) {
-    final decay = pow(1 - value, 1.5).toDouble();
+    final decay = pow(1 - value, 2).toDouble();
     const max = GameConstants.shakeMaxOffset;
     return Offset(
-      sin(value * pi * 9) * max * decay,
-      cos(value * pi * 8) * (max - 0.6) * decay,
+      sin(value * pi * 4) * max * decay,
+      cos(value * pi * 3.5) * (max - 0.5) * decay,
     );
   }
 
   double _moveTiltAngle() {
-    final eased = Curves.elasticOut.transform(_moveTiltController.value);
+    final eased = Curves.easeOutBack.transform(_moveTiltController.value);
     return _moveTiltStart * (1 - eased);
   }
 
@@ -103,65 +104,79 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
         final state = _controller.state;
 
         return Scaffold(
-          backgroundColor: AppColors.gameBackground,
-          body: SafeArea(
-            child: AnimatedBuilder(
-              animation: Listenable.merge([_shakeController, _moveTiltController]),
-              builder: (context, child) {
-                return Transform.translate(
-                  offset: _shakeOffset(_shakeController.value),
-                  child: child,
-                );
-              },
-              child: Stack(
-                clipBehavior: Clip.none,
-                children: [
-                  GameHud(
-                    score: state.score,
-                    remainingSeconds: state.remainingSeconds,
-                  ),
-                  for (final burst in state.activeBursts)
-                    Positioned(
-                      left: burst.center.dx - GameConstants.burstOverlaySize / 2,
-                      top: burst.center.dy - GameConstants.burstOverlaySize / 2,
-                      width: GameConstants.burstOverlaySize,
-                      height: GameConstants.burstOverlaySize,
-                      child: IgnorePointer(
-                        child: PopBurst(
-                          key: ValueKey(burst.id),
-                          colors: GameConstants.boxColors,
-                          onComplete: () => _handleRemoveBurst(burst.id),
-                        ),
-                      ),
+          backgroundColor: Colors.transparent,
+          body: Container(
+            width: double.infinity,
+            height: double.infinity,
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: AppColors.gameGradient,
+              ),
+            ),
+            child: SafeArea(
+              child: AnimatedBuilder(
+                animation: Listenable.merge([_shakeController, _moveTiltController]),
+                builder: (context, child) {
+                  return Transform.translate(
+                    offset: _shakeOffset(_shakeController.value),
+                    child: child,
+                  );
+                },
+                child: Stack(
+                  clipBehavior: Clip.none,
+                  children: [
+                    GameHud(
+                      score: state.score,
+                      remainingSeconds: state.remainingSeconds,
                     ),
-                  AnimatedPositioned(
-                    duration: GameConstants.boxMoveDuration,
-                    curve: GameConstants.boxMoveCurve,
-                    left: state.boxX,
-                    top: state.boxY,
-                    child: Transform.rotate(
-                      angle: _moveTiltAngle(),
-                      child: GiftBox(
-                        size: state.boxSize,
-                        color: state.boxColor,
-                        isActive: state.isActive,
-                        onTap: _handlePopBox,
-                      ),
-                    ),
-                  ),
-                  if (!state.isActive)
-                    Positioned.fill(
-                      child: ColoredBox(
-                        color: Colors.black38,
-                        child: Center(
-                          child: GameOverPanel(
-                            score: state.score,
-                            onPlayAgain: _controller.playAgain,
+                    for (final burst in state.activeBursts)
+                      Positioned(
+                        left: burst.center.dx - GameConstants.burstOverlaySize / 2,
+                        top: burst.center.dy - GameConstants.burstOverlaySize / 2,
+                        width: GameConstants.burstOverlaySize,
+                        height: GameConstants.burstOverlaySize,
+                        child: IgnorePointer(
+                          child: PopBurst(
+                            key: ValueKey(burst.id),
+                            colors: GameConstants.boxColors,
+                            onComplete: () => _handleRemoveBurst(burst.id),
                           ),
                         ),
                       ),
+                    AnimatedPositioned(
+                      duration: GameConstants.boxMoveDuration,
+                      curve: GameConstants.boxMoveCurve,
+                      left: state.boxX,
+                      top: state.boxY,
+                      child: Transform.rotate(
+                        angle: _moveTiltAngle(),
+                        child: GiftBox(
+                          size: state.boxSize,
+                          color: state.boxColor,
+                          isActive: state.isActive,
+                          onTap: _handlePopBox,
+                        ),
+                      ),
                     ),
-                ],
+                    if (!state.isActive)
+                      Positioned.fill(
+                        child: ColoredBox(
+                          color: AppColors.overlayScrim,
+                          child: Center(
+                            child: Padding(
+                              padding: const EdgeInsets.all(AppSpacing.lg),
+                              child: GameOverPanel(
+                                score: state.score,
+                                onPlayAgain: _controller.playAgain,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
               ),
             ),
           ),
