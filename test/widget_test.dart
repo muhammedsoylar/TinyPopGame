@@ -1,0 +1,92 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_test/flutter_test.dart';
+
+import 'package:tiny_pop/main.dart';
+import 'package:tiny_pop/widgets/gift_box.dart';
+
+Future<void> _startGame(WidgetTester tester) async {
+  await tester.pumpWidget(const TinyPopApp());
+  await tester.tap(find.text('Play'));
+  await tester.pump();
+  await tester.pump(const Duration(milliseconds: 400));
+}
+
+Future<void> _pumpGameFrame(WidgetTester tester, [Duration duration = const Duration(milliseconds: 250)]) async {
+  await tester.pump();
+  await tester.pump(duration);
+}
+
+void main() {
+  testWidgets('Main menu shows title and Play button', (WidgetTester tester) async {
+    await tester.pumpWidget(const TinyPopApp());
+
+    expect(find.text('Tiny Pop'), findsOneWidget);
+    expect(find.text('Play'), findsOneWidget);
+    expect(find.byIcon(Icons.volume_up_rounded), findsOneWidget);
+    expect(find.text('Time: 60'), findsNothing);
+    expect(find.text('🎁'), findsOneWidget);
+  });
+
+  testWidgets('Sound toggle turns sound off on main menu', (WidgetTester tester) async {
+    await tester.pumpWidget(const TinyPopApp());
+
+    await tester.tap(find.byIcon(Icons.volume_up_rounded));
+    await tester.pump();
+
+    expect(find.byIcon(Icons.volume_off_rounded), findsOneWidget);
+  });
+
+  testWidgets('Game starts after Play is tapped', (WidgetTester tester) async {
+    await _startGame(tester);
+
+    expect(find.text('Score: 0'), findsOneWidget);
+    expect(find.text('Time: 60'), findsOneWidget);
+    expect(find.text('Play'), findsNothing);
+  });
+
+  testWidgets('Score increments when the gift is tapped', (WidgetTester tester) async {
+    await _startGame(tester);
+
+    await tester.tap(find.byKey(GiftBox.tapKey));
+    await _pumpGameFrame(tester);
+
+    expect(find.text('Score: 1'), findsOneWidget);
+  });
+
+  testWidgets('Timer counts down every second', (WidgetTester tester) async {
+    await _startGame(tester);
+
+    expect(find.text('Time: 60'), findsOneWidget);
+
+    await tester.pump(const Duration(seconds: 1));
+
+    expect(find.text('Time: 59'), findsOneWidget);
+  });
+
+  testWidgets('Game over panel appears when time runs out', (WidgetTester tester) async {
+    await _startGame(tester);
+
+    await tester.pump(const Duration(seconds: 60));
+
+    expect(find.text('Game Over'), findsOneWidget);
+    expect(find.text('Play Again'), findsOneWidget);
+  });
+
+  testWidgets('Play Again resets the game', (WidgetTester tester) async {
+    await _startGame(tester);
+
+    await tester.tap(find.byKey(GiftBox.tapKey));
+    await _pumpGameFrame(tester);
+    await tester.pump(const Duration(seconds: 60));
+
+    expect(find.text('Final Score: 1'), findsOneWidget);
+
+    await tester.tap(find.text('Play Again'));
+    await _pumpGameFrame(tester);
+
+    expect(find.text('Score: 0'), findsOneWidget);
+    expect(find.text('Time: 60'), findsOneWidget);
+    expect(find.text('Game Over'), findsNothing);
+    expect(find.byKey(GiftBox.tapKey), findsOneWidget);
+  });
+}
