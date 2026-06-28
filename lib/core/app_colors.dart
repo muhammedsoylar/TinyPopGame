@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 
 abstract final class AppColors {
-  static const gameBackground = Color(0xFFFFF3D6);
+  static const gameBackground = Color(0xFFFFF8EC);
 
+  /// Option A — minimal pastel gradients (slightly softened for gift/confetti contrast).
   static const menuGradient = [
-    Color(0xFFFFF3D6),
-    Color(0xFFFFE8F5),
-    Color(0xFFE8F4FF),
+    Color(0xFFFFF6E8),
+    Color(0xFFFFECF4),
+    Color(0xFFEAF3FF),
   ];
 
   static const gameGradient = [
@@ -15,6 +16,7 @@ abstract final class AppColors {
     Color(0xFFEDF5FF),
   ];
 
+  /// Bokeh decor palette at 15–25% opacity in [BackgroundLayer].
   static const menuBubble = [
     Color(0xFFFF6B6B),
     Color(0xFFFFD93D),
@@ -36,4 +38,8 @@ abstract final class AppColors {
   static const starEmpty = Color(0xFFE0E0E0);
 
   static const overlayScrim = Color(0x61000000);
+
+  static const backgroundCloud = Color(0xFFFFFFFF);
+  static const backgroundBokehOpacity = 0.2;
+  static const backgroundCloudOpacity = 0.05;
 }

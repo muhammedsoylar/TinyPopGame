@@ -8,6 +8,7 @@ import 'package:tiny_pop/core/app_layout.dart';
 import 'package:tiny_pop/core/app_spacing.dart';
 import 'package:tiny_pop/core/game_constants.dart';
 import 'package:tiny_pop/game/game_controller.dart';
+import 'package:tiny_pop/widgets/background_layer.dart';
 import 'package:tiny_pop/widgets/game_hud.dart';
 import 'package:tiny_pop/widgets/game_over_panel.dart';
 import 'package:tiny_pop/widgets/gift_box.dart';
@@ -140,16 +141,8 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
 
         return Scaffold(
           backgroundColor: Colors.transparent,
-          body: Container(
-            width: double.infinity,
-            height: double.infinity,
-            decoration: const BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: AppColors.gameGradient,
-              ),
-            ),
+          body: BackgroundLayer(
+            variant: BackgroundVariant.game,
             child: SafeArea(
               child: AnimatedBuilder(
                 animation: Listenable.merge([_shakeController, _moveTiltController]),

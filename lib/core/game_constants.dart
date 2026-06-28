@@ -35,6 +35,8 @@ abstract final class GameConstants {
   static const minBoxY = 150.0;
   static const boxYRange = 400.0;
 
+  /// See [BackgroundLayer] playfield bounds for background decor margins.
+
   static const initialBoxColor = Colors.redAccent;
 
   static const boxColors = [
