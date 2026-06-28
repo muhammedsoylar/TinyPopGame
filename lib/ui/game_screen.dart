@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:tiny_pop/services/game_audio.dart';
 import 'package:tiny_pop/services/high_score_service.dart';
 import 'package:tiny_pop/core/app_colors.dart';
+import 'package:tiny_pop/core/app_layout.dart';
 import 'package:tiny_pop/core/app_spacing.dart';
 import 'package:tiny_pop/core/game_constants.dart';
 import 'package:tiny_pop/game/game_controller.dart';
@@ -200,7 +201,9 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
                           color: AppColors.overlayScrim,
                           child: Center(
                             child: Padding(
-                              padding: const EdgeInsets.all(AppSpacing.lg),
+                              padding: EdgeInsets.all(
+                                AppLayout.spacing(context, AppSpacing.lg),
+                              ),
                               child: ListenableBuilder(
                                 listenable: _highScoreService,
                                 builder: (context, _) {

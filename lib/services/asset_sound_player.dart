@@ -1,5 +1,4 @@
 import 'package:audioplayers/audioplayers.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:tiny_pop/services/sound_player.dart';
 
@@ -12,19 +11,9 @@ class AssetSoundPlayer extends SoundPlayer {
 
   final AudioPlayer _player;
   bool? _popSoundAvailable;
-  bool _hasLoggedFailure = false;
 
-  void _disablePopSound([Object? error]) {
+  void _disablePopSound() {
     _popSoundAvailable = false;
-    if (_hasLoggedFailure) {
-      return;
-    }
-
-    _hasLoggedFailure = true;
-    assert(() {
-      debugPrint('[AssetSoundPlayer] pop sound disabled: $error');
-      return true;
-    }());
   }
 
   Future<bool> _ensurePopSoundAvailable() async {
@@ -35,14 +24,14 @@ class AssetSoundPlayer extends SoundPlayer {
     try {
       final data = await rootBundle.load(popAssetPath);
       if (data.lengthInBytes == 0) {
-        _disablePopSound('empty asset');
+        _disablePopSound();
         return false;
       }
 
       _popSoundAvailable = true;
       return true;
-    } catch (error) {
-      _disablePopSound(error);
+    } catch (_) {
+      _disablePopSound();
       return false;
     }
   }
@@ -60,8 +49,8 @@ class AssetSoundPlayer extends SoundPlayer {
     try {
       await _player.stop();
       await _player.play(AssetSource(popSourcePath));
-    } catch (error) {
-      _disablePopSound(error);
+    } catch (_) {
+      _disablePopSound();
     }
   }
 

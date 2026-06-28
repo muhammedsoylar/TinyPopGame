@@ -5,8 +5,14 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tiny_pop/main.dart';
 import 'package:tiny_pop/widgets/gift_box.dart';
 
-Future<void> _startGame(WidgetTester tester) async {
+Future<void> _pumpApp(WidgetTester tester) async {
   await tester.pumpWidget(const TinyPopApp());
+  await tester.pump();
+  await tester.pump(const Duration(milliseconds: 50));
+}
+
+Future<void> _startGame(WidgetTester tester) async {
+  await _pumpApp(tester);
   await tester.tap(find.text('Play'));
   await tester.pump();
   await tester.pump(const Duration(milliseconds: 400));
@@ -23,8 +29,7 @@ void main() {
   });
 
   testWidgets('Main menu shows title and Play button', (WidgetTester tester) async {
-    await tester.pumpWidget(const TinyPopApp());
-    await tester.pump();
+    await _pumpApp(tester);
 
     expect(find.text('Tiny Pop'), findsOneWidget);
     expect(find.text('Play'), findsOneWidget);
@@ -35,8 +40,37 @@ void main() {
   });
 
   testWidgets('Sound toggle turns sound off on main menu', (WidgetTester tester) async {
-    await tester.pumpWidget(const TinyPopApp());
+    await _pumpApp(tester);
+
+    await tester.tap(find.byIcon(Icons.volume_up_rounded));
     await tester.pump();
+
+    expect(find.byIcon(Icons.volume_off_rounded), findsOneWidget);
+  });
+
+  testWidgets('Sound setting persists on relaunch', (WidgetTester tester) async {
+    await _pumpApp(tester);
+
+    await tester.tap(find.byIcon(Icons.volume_up_rounded));
+    await tester.pump();
+
+    await _pumpApp(tester);
+
+    expect(find.byIcon(Icons.volume_off_rounded), findsOneWidget);
+  });
+
+  testWidgets('Sound setting loads from storage on startup', (WidgetTester tester) async {
+    SharedPreferences.setMockInitialValues({'sound_enabled': false});
+
+    await _pumpApp(tester);
+
+    expect(find.byIcon(Icons.volume_off_rounded), findsOneWidget);
+  });
+
+  testWidgets('Sound toggle is available during gameplay', (WidgetTester tester) async {
+    await _startGame(tester);
+
+    expect(find.byIcon(Icons.volume_up_rounded), findsOneWidget);
 
     await tester.tap(find.byIcon(Icons.volume_up_rounded));
     await tester.pump();

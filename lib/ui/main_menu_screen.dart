@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:tiny_pop/core/app_colors.dart';
+import 'package:tiny_pop/core/app_layout.dart';
 import 'package:tiny_pop/core/app_spacing.dart';
 import 'package:tiny_pop/core/app_typography.dart';
 import 'package:tiny_pop/services/high_score_service.dart';
@@ -20,6 +21,9 @@ class MainMenuScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final scale = AppLayout.scaleOf(context);
+    final contentWidth = AppLayout.contentWidth(context);
+
     return Scaffold(
       body: Container(
         width: double.infinity,
@@ -36,74 +40,93 @@ class MainMenuScreen extends StatelessWidget {
             children: [
               for (var i = 0; i < AppColors.menuBubble.length; i++)
                 Positioned(
-                  top: AppSpacing.xl + (i * AppSpacing.xs),
-                  left: i.isEven ? AppSpacing.sm : null,
-                  right: i.isOdd ? AppSpacing.sm : null,
+                  top: AppLayout.spacing(context, AppSpacing.xl + (i * AppSpacing.xs)),
+                  left: i.isEven ? AppLayout.spacing(context, AppSpacing.sm) : null,
+                  right: i.isOdd ? AppLayout.spacing(context, AppSpacing.sm) : null,
                   child: MenuBubble(
                     color: AppColors.menuBubble[i],
-                    size: AppSpacing.xl + (i * AppSpacing.xs / 2),
+                    size: AppLayout.spacing(context, AppSpacing.xl + (i * AppSpacing.xs / 2)),
                   ),
                 ),
-              const Positioned(
-                top: AppSpacing.xs,
-                right: AppSpacing.xs,
-                child: SoundToggleButton(),
+              Positioned(
+                top: AppLayout.spacing(context, AppSpacing.xs),
+                right: AppLayout.spacing(context, AppSpacing.xs),
+                child: const SoundToggleButton(),
               ),
               Center(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Text(
-                        '🎁',
-                        style: TextStyle(fontSize: 72),
+                child: LayoutBuilder(
+                  builder: (context, constraints) {
+                    return Padding(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: AppLayout.spacing(context, AppSpacing.lg),
                       ),
-                      const SizedBox(height: AppSpacing.sm),
-                      const Text(
-                        'Tiny Pop',
-                        textAlign: TextAlign.center,
-                        style: AppTypography.display,
-                      ),
-                      const SizedBox(height: AppSpacing.xs + 4),
-                      const Text(
-                        'Tap the gifts as fast as you can!',
-                        textAlign: TextAlign.center,
-                        style: AppTypography.bodyLarge,
-                      ),
-                      const SizedBox(height: AppSpacing.sm),
-                      ListenableBuilder(
-                        listenable: HighScoreScope.of(context),
-                        builder: (context, _) {
-                          final highScore = HighScoreScope.of(context).highScore;
-                          return Text(
-                            'Best Score: $highScore',
-                            style: AppTypography.headline.copyWith(
-                              color: AppColors.hudScoreAccent,
+                      child: ConstrainedBox(
+                        constraints: BoxConstraints(
+                          maxWidth: contentWidth,
+                          maxHeight: constraints.maxHeight,
+                        ),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              '🎁',
+                              style: TextStyle(fontSize: 72 * scale),
                             ),
-                          );
-                        },
-                      ),
-                      const SizedBox(height: AppSpacing.md),
-                      SizedBox(
-                        width: double.infinity,
-                        child: ElevatedButton(
-                          onPressed: () => _startGame(context),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: AppColors.playButtonOrange,
-                            foregroundColor: Colors.white,
-                            padding: const EdgeInsets.symmetric(vertical: AppSpacing.sm + 4),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(AppSpacing.md),
+                            SizedBox(height: AppLayout.spacing(context, AppSpacing.sm)),
+                            Text(
+                              'Tiny Pop',
+                              textAlign: TextAlign.center,
+                              style: AppLayout.text(context, AppTypography.display),
                             ),
-                            elevation: 6,
-                            textStyle: AppTypography.buttonLarge,
-                          ),
-                          child: const Text('Play'),
+                            SizedBox(height: AppLayout.spacing(context, AppSpacing.xs)),
+                            Text(
+                              'Tap the gifts as fast as you can!',
+                              textAlign: TextAlign.center,
+                              style: AppLayout.text(context, AppTypography.bodyLarge),
+                            ),
+                            SizedBox(height: AppLayout.spacing(context, AppSpacing.sm)),
+                            ListenableBuilder(
+                              listenable: HighScoreScope.of(context),
+                              builder: (context, _) {
+                                final highScore = HighScoreScope.of(context).highScore;
+                                return Text(
+                                  'Best Score: $highScore',
+                                  style: AppLayout.text(
+                                    context,
+                                    AppTypography.headline.copyWith(
+                                      color: AppColors.hudScoreAccent,
+                                    ),
+                                  ),
+                                );
+                              },
+                            ),
+                            SizedBox(height: AppLayout.spacing(context, AppSpacing.md)),
+                            SizedBox(
+                              width: double.infinity,
+                              child: ElevatedButton(
+                                onPressed: () => _startGame(context),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: AppColors.playButtonOrange,
+                                  foregroundColor: Colors.white,
+                                  padding: EdgeInsets.symmetric(
+                                    vertical: AppLayout.spacing(context, AppSpacing.sm),
+                                  ),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(
+                                      AppLayout.spacing(context, AppSpacing.md),
+                                    ),
+                                  ),
+                                  elevation: 6,
+                                  textStyle: AppLayout.text(context, AppTypography.buttonLarge),
+                                ),
+                                child: const Text('Play'),
+                              ),
+                            ),
+                          ],
                         ),
                       ),
-                    ],
-                  ),
+                    );
+                  },
                 ),
               ),
             ],

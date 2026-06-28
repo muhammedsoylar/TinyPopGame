@@ -22,7 +22,9 @@ class SoundToggleButton extends StatelessWidget {
             size: AppSpacing.lg,
           ),
           color: AppColors.titlePurple,
-          onPressed: audio.toggleEnabled,
+          onPressed: () {
+            audio.toggleEnabled();
+          },
         );
       },
     );

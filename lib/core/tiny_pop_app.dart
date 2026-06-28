@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:tiny_pop/services/asset_sound_player.dart';
 import 'package:tiny_pop/services/game_audio.dart';
 import 'package:tiny_pop/services/high_score_service.dart';
+import 'package:tiny_pop/services/settings_storage.dart';
 import 'package:tiny_pop/ui/main_menu_screen.dart';
 
 class TinyPopApp extends StatefulWidget {
@@ -13,13 +14,31 @@ class TinyPopApp extends StatefulWidget {
 
 class _TinyPopAppState extends State<TinyPopApp> {
   late final AssetSoundPlayer _soundPlayer = AssetSoundPlayer();
-  late final GameAudio _gameAudio = GameAudio(player: _soundPlayer);
+  late final GameAudio _gameAudio = GameAudio(
+    player: _soundPlayer,
+    storage: const SharedPreferencesSettingsStorage(),
+  );
   late final HighScoreService _highScoreService = HighScoreService();
+
+  bool _isReady = false;
 
   @override
   void initState() {
     super.initState();
-    _highScoreService.load();
+    _bootstrap();
+  }
+
+  Future<void> _bootstrap() async {
+    await Future.wait([
+      _highScoreService.load(),
+      _gameAudio.load(),
+    ]);
+
+    if (!mounted) {
+      return;
+    }
+
+    setState(() => _isReady = true);
   }
 
   @override
@@ -30,6 +49,13 @@ class _TinyPopAppState extends State<TinyPopApp> {
 
   @override
   Widget build(BuildContext context) {
+    if (!_isReady) {
+      return const MaterialApp(
+        debugShowCheckedModeBanner: false,
+        home: SizedBox.shrink(),
+      );
+    }
+
     return HighScoreScope(
       notifier: _highScoreService,
       child: GameAudioScope(

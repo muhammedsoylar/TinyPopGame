@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:tiny_pop/core/app_colors.dart';
+import 'package:tiny_pop/core/app_layout.dart';
 import 'package:tiny_pop/core/app_spacing.dart';
 import 'package:tiny_pop/core/app_typography.dart';
 
@@ -82,106 +83,131 @@ class _GameOverPanelState extends State<GameOverPanel> with TickerProviderStateM
   @override
   Widget build(BuildContext context) {
     final earned = _earnedStars(widget.score);
+    final panelRadius = AppLayout.spacing(context, AppSpacing.md);
+    final starSize = AppLayout.spacing(context, AppSpacing.xxl);
 
-    return Material(
-      elevation: AppSpacing.sm,
-      borderRadius: BorderRadius.circular(AppSpacing.md),
-      color: AppColors.hudCardBackground,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(
-          horizontal: AppSpacing.lg,
-          vertical: AppSpacing.md,
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              'Game Over',
-              style: AppTypography.display.copyWith(fontSize: 44),
-            ),
-            const SizedBox(height: AppSpacing.sm),
-            Row(
-              mainAxisSize: MainAxisSize.min,
-              children: List.generate(_starCount, (index) {
-                final isFilled = index < earned;
-                return Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xs / 2),
-                  child: ScaleTransition(
-                    scale: isFilled
-                        ? _starScales[index]
-                        : const AlwaysStoppedAnimation(1),
-                    child: Icon(
-                      isFilled ? Icons.star_rounded : Icons.star_outline_rounded,
-                      size: AppSpacing.xxl,
-                      color: isFilled ? AppColors.starFilled : AppColors.starEmpty,
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        return ConstrainedBox(
+          constraints: BoxConstraints(
+            maxWidth: AppLayout.contentWidth(context),
+          ),
+          child: Material(
+            elevation: AppLayout.spacing(context, AppSpacing.sm),
+            borderRadius: BorderRadius.circular(panelRadius),
+            color: AppColors.hudCardBackground,
+            child: Padding(
+              padding: EdgeInsets.symmetric(
+                horizontal: AppLayout.spacing(context, AppSpacing.lg),
+                vertical: AppLayout.spacing(context, AppSpacing.md),
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    'Game Over',
+                    style: AppLayout.text(context, AppTypography.title),
+                  ),
+                  SizedBox(height: AppLayout.spacing(context, AppSpacing.sm)),
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: List.generate(_starCount, (index) {
+                      final isFilled = index < earned;
+                      return Padding(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: AppLayout.spacing(context, AppSpacing.xs / 2),
+                        ),
+                        child: ScaleTransition(
+                          scale: isFilled
+                              ? _starScales[index]
+                              : const AlwaysStoppedAnimation(1),
+                          child: Icon(
+                            isFilled ? Icons.star_rounded : Icons.star_outline_rounded,
+                            size: starSize,
+                            color: isFilled ? AppColors.starFilled : AppColors.starEmpty,
+                          ),
+                        ),
+                      );
+                    }),
+                  ),
+                  SizedBox(height: AppLayout.spacing(context, AppSpacing.sm)),
+                  Text(
+                    'Final Score: ${widget.score}',
+                    style: AppLayout.text(context, AppTypography.headline),
+                  ),
+                  SizedBox(height: AppLayout.spacing(context, AppSpacing.xs)),
+                  Text(
+                    'Best Score: ${widget.bestScore}',
+                    style: AppLayout.text(
+                      context,
+                      AppTypography.bodyLarge.copyWith(
+                        fontWeight: FontWeight.w700,
+                        color: AppColors.titlePurple,
+                      ),
                     ),
                   ),
-                );
-              }),
-            ),
-            const SizedBox(height: AppSpacing.sm),
-            Text(
-              'Final Score: ${widget.score}',
-              style: AppTypography.headline,
-            ),
-            const SizedBox(height: AppSpacing.xs),
-            Text(
-              'Best Score: ${widget.bestScore}',
-              style: AppTypography.bodyLarge.copyWith(
-                fontWeight: FontWeight.w700,
-                color: AppColors.titlePurple,
-              ),
-            ),
-            if (widget.isNewRecord) ...[
-              const SizedBox(height: AppSpacing.xs),
-              Text(
-                'New Record!',
-                style: AppTypography.headline.copyWith(
-                  color: AppColors.hudScoreAccent,
-                ),
-              ),
-            ],
-            const SizedBox(height: AppSpacing.md),
-            SizedBox(
-              width: double.infinity,
-              child: DecoratedBox(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(AppSpacing.sm),
-                  gradient: const LinearGradient(
-                    colors: [
-                      AppColors.playButtonOrange,
-                      AppColors.playAgainGreen,
-                    ],
-                  ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: AppColors.playButtonOrange.withOpacity(0.35),
-                      blurRadius: AppSpacing.sm,
-                      offset: const Offset(0, 6),
+                  if (widget.isNewRecord) ...[
+                    SizedBox(height: AppLayout.spacing(context, AppSpacing.xs)),
+                    Text(
+                      'New Record!',
+                      style: AppLayout.text(
+                        context,
+                        AppTypography.headline.copyWith(
+                          color: AppColors.hudScoreAccent,
+                        ),
+                      ),
                     ),
                   ],
-                ),
-                child: Material(
-                  color: Colors.transparent,
-                  child: InkWell(
-                    onTap: widget.onPlayAgain,
-                    borderRadius: BorderRadius.circular(AppSpacing.sm),
-                    child: const Padding(
-                      padding: EdgeInsets.symmetric(vertical: AppSpacing.sm),
-                      child: Center(
-                        child: Text(
-                          'Play Again',
-                          style: AppTypography.buttonLarge,
+                  SizedBox(height: AppLayout.spacing(context, AppSpacing.md)),
+                  SizedBox(
+                    width: double.infinity,
+                    child: DecoratedBox(
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(
+                          AppLayout.spacing(context, AppSpacing.sm),
+                        ),
+                        gradient: const LinearGradient(
+                          colors: [
+                            AppColors.playButtonOrange,
+                            AppColors.playAgainGreen,
+                          ],
+                        ),
+                        boxShadow: [
+                          BoxShadow(
+                            color: AppColors.playButtonOrange.withOpacity(0.35),
+                            blurRadius: AppLayout.spacing(context, AppSpacing.sm),
+                            offset: Offset(0, AppLayout.spacing(context, AppSpacing.xs)),
+                          ),
+                        ],
+                      ),
+                      child: Material(
+                        color: Colors.transparent,
+                        child: InkWell(
+                          onTap: widget.onPlayAgain,
+                          borderRadius: BorderRadius.circular(
+                            AppLayout.spacing(context, AppSpacing.sm),
+                          ),
+                          child: Padding(
+                            padding: EdgeInsets.symmetric(
+                              vertical: AppLayout.spacing(context, AppSpacing.sm),
+                            ),
+                            child: Center(
+                              child: Text(
+                                'Play Again',
+                                style: AppLayout.text(context, AppTypography.buttonLarge),
+                              ),
+                            ),
+                          ),
                         ),
                       ),
                     ),
                   ),
-                ),
+                ],
               ),
             ),
-          ],
-        ),
-      ),
+          ),
+        );
+      },
     );
   }
 }

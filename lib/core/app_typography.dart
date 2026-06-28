@@ -46,6 +46,14 @@ abstract final class AppTypography {
     color: AppColors.titlePurple,
   );
 
+  static const caption = TextStyle(
+    fontSize: 12,
+    fontWeight: FontWeight.w700,
+    height: 1.2,
+    letterSpacing: 0.6,
+    color: AppColors.subtitleBrown,
+  );
+
   static const buttonLarge = TextStyle(
     fontSize: 24,
     fontWeight: FontWeight.w800,

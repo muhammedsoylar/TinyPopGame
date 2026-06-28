@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:tiny_pop/core/app_colors.dart';
+import 'package:tiny_pop/core/app_layout.dart';
 import 'package:tiny_pop/core/app_spacing.dart';
 import 'package:tiny_pop/core/app_typography.dart';
+import 'package:tiny_pop/widgets/sound_toggle_button.dart';
 
 class GameHud extends StatelessWidget {
   const GameHud({
@@ -15,11 +17,21 @@ class GameHud extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final inset = AppLayout.spacing(context, AppSpacing.sm);
+
     return Stack(
       children: [
         Positioned(
-          top: AppSpacing.sm,
-          left: AppSpacing.sm,
+          top: inset,
+          left: 0,
+          right: 0,
+          child: const Center(
+            child: SoundToggleButton(),
+          ),
+        ),
+        Positioned(
+          top: inset,
+          left: inset,
           child: _HudCard(
             accentColor: AppColors.hudScoreAccent,
             icon: Icons.star_rounded,
@@ -28,8 +40,8 @@ class GameHud extends StatelessWidget {
           ),
         ),
         Positioned(
-          top: AppSpacing.sm,
-          right: AppSpacing.sm,
+          top: inset,
+          right: inset,
           child: _HudCard(
             accentColor: AppColors.hudTimeAccent,
             icon: Icons.timer_rounded,
@@ -57,51 +69,56 @@ class _HudCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final radius = AppLayout.spacing(context, AppSpacing.sm);
+    final iconSize = AppLayout.spacing(context, AppSpacing.xl);
+    final iconGlyphSize = AppLayout.spacing(context, AppSpacing.md);
+
     return DecoratedBox(
       decoration: BoxDecoration(
         color: AppColors.hudCardBackground.withOpacity(0.94),
-        borderRadius: BorderRadius.circular(AppSpacing.sm),
+        borderRadius: BorderRadius.circular(radius),
         border: Border.all(color: accentColor.withOpacity(0.25)),
         boxShadow: [
           BoxShadow(
             color: accentColor.withOpacity(0.18),
-            blurRadius: AppSpacing.sm,
-            offset: const Offset(0, 4),
+            blurRadius: AppLayout.spacing(context, AppSpacing.sm),
+            offset: Offset(0, AppLayout.spacing(context, AppSpacing.xs / 2)),
           ),
         ],
       ),
       child: Padding(
-        padding: const EdgeInsets.symmetric(
-          horizontal: AppSpacing.sm,
-          vertical: AppSpacing.xs,
+        padding: EdgeInsets.symmetric(
+          horizontal: AppLayout.spacing(context, AppSpacing.sm),
+          vertical: AppLayout.spacing(context, AppSpacing.xs),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
             Container(
-              width: AppSpacing.xl,
-              height: AppSpacing.xl,
+              width: iconSize,
+              height: iconSize,
               decoration: BoxDecoration(
                 color: accentColor.withOpacity(0.15),
-                borderRadius: BorderRadius.circular(AppSpacing.xs),
+                borderRadius: BorderRadius.circular(AppLayout.spacing(context, AppSpacing.xs)),
               ),
-              child: Icon(icon, color: accentColor, size: AppSpacing.md),
+              child: Icon(icon, color: accentColor, size: iconGlyphSize),
             ),
-            const SizedBox(width: AppSpacing.xs),
+            SizedBox(width: AppLayout.spacing(context, AppSpacing.xs)),
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
                   label,
-                  style: AppTypography.body.copyWith(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w700,
-                    color: accentColor,
-                    letterSpacing: 0.6,
+                  style: AppLayout.text(
+                    context,
+                    AppTypography.caption.copyWith(color: accentColor),
                   ),
                 ),
-                Text(value, style: AppTypography.hudValue),
+                Text(
+                  value,
+                  style: AppLayout.text(context, AppTypography.hudValue),
+                ),
               ],
             ),
           ],
