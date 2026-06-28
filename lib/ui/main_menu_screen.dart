@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:tiny_pop/core/app_colors.dart';
+import 'package:tiny_pop/core/app_spacing.dart';
+import 'package:tiny_pop/core/app_typography.dart';
 import 'package:tiny_pop/ui/game_screen.dart';
 import 'package:tiny_pop/widgets/menu_bubble.dart';
 import 'package:tiny_pop/widgets/sound_toggle_button.dart';
@@ -33,22 +35,22 @@ class MainMenuScreen extends StatelessWidget {
             children: [
               for (var i = 0; i < AppColors.menuBubble.length; i++)
                 Positioned(
-                  top: 40.0 + (i * 48),
-                  left: i.isEven ? 24 : null,
-                  right: i.isOdd ? 24 : null,
+                  top: AppSpacing.xl + (i * AppSpacing.xs),
+                  left: i.isEven ? AppSpacing.sm : null,
+                  right: i.isOdd ? AppSpacing.sm : null,
                   child: MenuBubble(
                     color: AppColors.menuBubble[i],
-                    size: 36 + (i * 6),
+                    size: AppSpacing.xl + (i * AppSpacing.xs / 2),
                   ),
                 ),
               const Positioned(
-                top: 8,
-                right: 8,
+                top: AppSpacing.xs,
+                right: AppSpacing.xs,
                 child: SoundToggleButton(),
               ),
               Center(
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 32),
+                  padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
@@ -56,27 +58,19 @@ class MainMenuScreen extends StatelessWidget {
                         '🎁',
                         style: TextStyle(fontSize: 72),
                       ),
-                      const SizedBox(height: 16),
-                      Text(
+                      const SizedBox(height: AppSpacing.sm),
+                      const Text(
                         'Tiny Pop',
                         textAlign: TextAlign.center,
-                        style: Theme.of(context).textTheme.displayMedium?.copyWith(
-                              fontWeight: FontWeight.w900,
-                              color: AppColors.titlePurple,
-                              letterSpacing: 1.2,
-                            ),
+                        style: AppTypography.display,
                       ),
-                      const SizedBox(height: 12),
+                      const SizedBox(height: AppSpacing.xs + 4),
                       const Text(
                         'Tap the gifts as fast as you can!',
                         textAlign: TextAlign.center,
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w600,
-                          color: AppColors.subtitleBrown,
-                        ),
+                        style: AppTypography.bodyLarge,
                       ),
-                      const SizedBox(height: 40),
+                      const SizedBox(height: AppSpacing.xl),
                       SizedBox(
                         width: double.infinity,
                         child: ElevatedButton(
@@ -84,15 +78,12 @@ class MainMenuScreen extends StatelessWidget {
                           style: ElevatedButton.styleFrom(
                             backgroundColor: AppColors.playButtonOrange,
                             foregroundColor: Colors.white,
-                            padding: const EdgeInsets.symmetric(vertical: 20),
+                            padding: const EdgeInsets.symmetric(vertical: AppSpacing.sm + 4),
                             shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(24),
+                              borderRadius: BorderRadius.circular(AppSpacing.md),
                             ),
                             elevation: 6,
-                            textStyle: const TextStyle(
-                              fontSize: 28,
-                              fontWeight: FontWeight.bold,
-                            ),
+                            textStyle: AppTypography.buttonLarge,
                           ),
                           child: const Text('Play'),
                         ),
